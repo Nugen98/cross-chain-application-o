@@ -1,0 +1,8 @@
+// Cosmos IBC module to handle token transfers
+func (k Keeper) ReceiveIBCMessage(ctx sdk.Context, msg IBCMessage) {
+    // Validate message
+    // Mint or transfer equivalent tokens to the recipient on Cosmos
+    recipient := msg.User
+    amount := msg.Amount
+    // Mint or transfer tokens
+}
