@@ -1,0 +1,28 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.19;
+
+contract CrossChainSwap {
+    address public owner;
+    mapping(address => uint256) public lockedFunds;
+    
+    event TokensLocked(address indexed user, uint256 amount, string targetChain, string targetAddress);
+    event TokensReleased(address indexed user, uint256 amount);
+    
+    constructor() {
+        owner = msg.sender;
+    }
+    
+    function lockTokens(uint256 amount, string memory targetChain, string memory targetAddress) external payable {
+        require(msg.value == amount, "Incorrect amount sent");
+        lockedFunds[msg.sender] += amount;
+        emit TokensLocked(msg.sender, amount, targetChain, targetAddress);
+    }
+    
+    function releaseTokens(address user, uint256 amount) external {
+        require(msg.sender == owner, "Only owner can release tokens");
+        require(lockedFunds[user] >= amount, "Insufficient funds");
+        lockedFunds[user] -= amount;
+        payable(user).transfer(amount);
+        emit TokensReleased(user, amount);
+    }
+}
