@@ -1,0 +1,29 @@
+pragma solidity ^0.8.0;
+
+contract CrossChainSwap {
+    address public oracle;
+    mapping(address => uint256) public lockedTokens;
+
+    modifier onlyOracle() {
+        require(msg.sender == oracle, "Only oracle can call this.");
+        _;
+    }
+
+    function setOracle(address _oracle) public {
+        oracle = _oracle;
+    }
+
+    function lockTokens(address user, uint256 amount) public {
+        require(amount > 0, "Amount must be greater than zero.");
+        lockedTokens[user] += amount;
+        emit TokensLocked(user, amount);
+    }
+
+    function unlockTokens(address user, uint256 amount) public onlyOracle {
+        require(lockedTokens[user] >= amount, "Insufficient balance.");
+        lockedTokens[user] -= amount;
+        // Unlock tokens to the user (transfer from contract)
+    }
+
+    event TokensLocked(address indexed user, uint256 amount);
+}
