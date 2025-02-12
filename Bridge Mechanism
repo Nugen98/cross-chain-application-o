@@ -1,0 +1,24 @@
+// Bridge service (Node.js example)
+const Web3 = require('web3');
+const web3 = new Web3('https://ethereum-node-url');
+const contractABI = /* ABI of Ethereum smart contract */;
+const contractAddress = '0x...'; // Ethereum contract address
+
+const contract = new web3.eth.Contract(contractABI, contractAddress);
+
+contract.events.TokensLocked({
+    fromBlock: 0
+}, async (error, event) => {
+    if (error) {
+        console.error("Error listening to event:", error);
+    } else {
+        console.log("Tokens Locked Event Detected:", event.returnValues);
+        // Send message to Cosmos using IBC
+        await sendToCosmos(event.returnValues.user, event.returnValues.amount);
+    }
+});
+
+async function sendToCosmos(user, amount) {
+    // Use Cosmos SDK and IBC to send tokens to Cosmos blockchain
+    console.log(`Sending tokens to Cosmos for user: ${user} and amount: ${amount}`);
+}
