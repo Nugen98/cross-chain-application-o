@@ -1,0 +1,39 @@
+package crosschainswap
+
+import (
+    "encoding/json"
+    "github.com/cosmos/cosmos-sdk/types"
+    "github.com/cosmos/ibc-go/modules/core/04-channel/types"
+)
+
+type MsgSwap struct {
+    Sender    string `json:"sender"`
+    Amount    int64  `json:"amount"`
+    TargetEth string `json:"target_eth"`
+}
+
+func HandleSwap(ctx types.Context, msg MsgSwap) (*types.Result, error) {
+    // Validate message
+    if msg.Amount <= 0 {
+        return nil, errors.New("invalid amount")
+    }
+    
+    // Lock tokens in Cosmos
+    err := LockTokens(ctx, msg.Sender, msg.Amount)
+    if err != nil {
+        return nil, err
+    }
+    
+    // Create IBC packet for Ethereum bridge
+    packet := types.Packet{
+        Data: json.Marshal(msg),
+    }
+    
+    // Send packet via IBC to Ethereum
+    err = SendIBCPacket(ctx, packet)
+    if err != nil {
+        return nil, err
+    }
+    
+    return &types.Result{}, nil
+}
